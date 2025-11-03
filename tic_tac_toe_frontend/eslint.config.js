@@ -1,16 +1,18 @@
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-import { defineConfig, globalIgnores } from 'eslint/config'
 
-export default defineConfig([
-  globalIgnores(['dist']),
+// ESLint 8 does not export 'eslint/config' subpath; use flat config object directly.
+const config = [
+  {
+    ignores: ['dist'],
+  },
   {
     files: ['**/*.{js,jsx}'],
-    extends: [
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-    ],
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -21,12 +23,22 @@ export default defineConfig([
       },
     },
     rules: {
+      // Base reliability rules
       'no-undef': 'error',
       'no-const-assign': 'error',
       'no-dupe-keys': 'error',
       'no-dupe-args': 'error',
       'no-duplicate-case': 'error',
       'constructor-super': 'error',
+
+      // React Hooks recommended (manually applied to avoid extends from plugin)
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+
+      // Vite react-refresh plugin recommended minimal compatibility
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
-])
+];
+
+export default config;
